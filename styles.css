@@ -608,6 +608,29 @@ section {
     color: var(--light-text);
 }
 
+/* Email Link Styling */
+.contact-link {
+    color: var(--text-color);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    padding: 5px 10px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+}
+
+.contact-link:hover {
+    color: var(--primary-color);
+    background: rgba(59, 130, 246, 0.1);
+    border-color: rgba(59, 130, 246, 0.3);
+    transform: translateX(5px);
+}
+
+.contact-link:active {
+    transform: translateX(3px);
+    opacity: 0.8;
+}
+
 .contact-icon {
     font-size: 1.5rem;
     color: var(--primary-color);
