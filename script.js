@@ -168,7 +168,7 @@ activeStyle.textContent = `
 `;
 document.head.appendChild(activeStyle);
 
-// Contact Form Handling
+// Contact Form Handling with EmailJS
 const contactForm = document.getElementById('contactForm');
 if (contactForm) {
     contactForm.addEventListener('submit', (e) => {
@@ -192,19 +192,70 @@ if (contactForm) {
             return;
         }
         
-        // Simulate form submission
-        const submitBtn = contactForm.querySelector('.btn-submit');
-        const originalText = submitBtn.textContent;
-        submitBtn.textContent = 'Sending...';
-        submitBtn.disabled = true;
-        
-        setTimeout(() => {
+        // Send email using EmailJS
+        sendEmail(name, email, subject, message);
+    });
+}
+
+// EmailJS Configuration and Email Sending Function
+function sendEmail(name, email, subject, message) {
+    const submitBtn = contactForm.querySelector('.btn-submit');
+    const originalText = submitBtn.textContent;
+    
+    // Show loading state
+    submitBtn.textContent = 'Sending...';
+    submitBtn.disabled = true;
+    
+    // EmailJS Template Parameters
+    const templateParams = {
+        from_name: name,
+        from_email: email,
+        to_name: 'David Seth Yaba',
+        subject: subject,
+        message: message,
+        reply_to: email
+    };
+    
+    // EmailJS Configuration
+    // IMPORTANT: Replace these with your own EmailJS credentials
+    // For testing, you can use a temporary service - see setup guide
+    const serviceID = 'YOUR_SERVICE_ID'; // Replace with your EmailJS Service ID
+    const templateID = 'YOUR_TEMPLATE_ID'; // Replace with your EmailJS Template ID  
+    const publicKey = 'YOUR_PUBLIC_KEY'; // Replace with your EmailJS Public Key
+    
+    // Quick Test Setup (Remove after configuring your own EmailJS)
+    // If you want to test immediately, you can use this temporary setup:
+    // 1. Go to https://www.emailjs.com/
+    // 2. Sign up for free account
+    // 3. Create a service and template
+    // 4. Replace the values above with your actual credentials
+    
+    // Check if EmailJS is initialized
+    if (typeof emailjs === 'undefined') {
+        showNotification('Email service not available. Please try again later.', 'error');
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+        return;
+    }
+    
+    // Initialize EmailJS with your public key
+    emailjs.init(publicKey);
+    
+    // Send the email
+    emailjs.send(serviceID, templateID, templateParams)
+        .then((response) => {
+            console.log('SUCCESS!', response.status, response.text);
             showNotification('Message sent successfully! I will get back to you soon.', 'success');
             contactForm.reset();
             submitBtn.textContent = originalText;
             submitBtn.disabled = false;
-        }, 1500);
-    });
+        })
+        .catch((error) => {
+            console.log('FAILED...', error);
+            showNotification('Failed to send message. Please try again or contact me directly.', 'error');
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+        });
 }
 
 // Email Validation
