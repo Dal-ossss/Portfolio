@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Portfolio</title>
+    <title>David Seth Yaba</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -141,6 +141,14 @@
                     <h3>Tools & Others</h3>
                     <div class="skill-items">
                         <div class="skill-item">
+                            <span class="skill-name">Weka</span>
+                            <div class="skill-bar"><div class="skill-progress" data-progress="80"></div></div>
+                        </div>
+                         <div class="skill-item">
+                            <span class="skill-name">Exel</span>
+                            <div class="skill-bar"><div class="skill-progress" data-progress="80"></div></div>
+                        </div>
+                        <div class="skill-item">
                             <span class="skill-name">Canva</span>
                             <div class="skill-bar"><div class="skill-progress" data-progress="95"></div></div>
                         </div>
@@ -171,27 +179,6 @@
         <div class="container">
             <h2 class="section-title">My Projects</h2>
             <div class="projects-grid">
-                <div class="project-card">
-                    <div class="project-image">
-                        <img src="va.png" alt="Capstone Project" class="project-image">
-                    </div>
-                    <div class="project-info">
-                        <h3 class="project-title">Capstone Project Sofware</h3>
-                        <p class="project-description">This is the sofware side of our Capstone project title Vision-Assist: A Smart Guidance and Emergency Alert System for Persons with Visual Disabilities using LiDAR, GPS, and SMS. It is an android application where the relatives or care taker of the blind person can monitor or track the location isabled person. </p>
-                        
-                    </div>
-                </div>
-                <div class="project-card">
-                    <div class="project-image">
-                        <img src="capstone.png" alt="Capstone Project" class="project-image">
-                    </div>
-                    
-                    <div class="project-info">
-                        <h3 class="project-title">Capstone Project Hardware </h3>
-                        <p class="project-description">This project is the hardware side or the wearable side of the out capstone titled Vision-Assist: A Smart Guidance and Emergency Alert System for Persons with Visual Disabilities using LiDAR, GPS, and SMS. It has a LiDAR sensor with a distance of 200 centemeter. It has a micro speaker which alerts the user base on the distance of the detected objects. THe GPS was also use to provide a lcoation of the blind person and lastly the SMS module where the user can sent his or her lcoation via tect message. The Processor of the device was Raspberry Pi 4.</p>
-                       
-                    </div>
-                </div>
                 <div class="project-card">
                      <div class="project-image">
                         <img src="kpi1.png" alt="Capstone Project" class="project-image">
@@ -270,7 +257,16 @@
     </section>
 
     <!-- Footer -->
-   
+    <!-- Image Lightbox Modal -->
+    <div id="imageModal" class="image-modal">
+        <div class="modal-content">
+            <button class="modal-close">&times;</button>
+            <img id="modalImage" src="" alt="Full size project image">
+            <div class="modal-info">
+                <h3 id="modalTitle"></h3>
+            </div>
+        </div>
+    </div>
 
     <script src="script.js"></script>
 </body>

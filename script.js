@@ -387,8 +387,13 @@ function createParticles() {
 // Initialize particles
 createParticles();
 
-// Project Card Hover Effect
+// Project Card Hover Effect and Lightbox Modal
 const projectCards = document.querySelectorAll('.project-card');
+const imageModal = document.getElementById('imageModal');
+const modalImage = document.getElementById('modalImage');
+const modalTitle = document.getElementById('modalTitle');
+const modalClose = document.querySelector('.modal-close');
+
 projectCards.forEach(card => {
     card.addEventListener('mouseenter', () => {
         card.style.transform = 'translateY(-10px) scale(1.02)';
@@ -397,7 +402,252 @@ projectCards.forEach(card => {
     card.addEventListener('mouseleave', () => {
         card.style.transform = 'translateY(0) scale(1)';
     });
+    
+    // Add click event to open lightbox
+    card.addEventListener('click', (e) => {
+        // Get the image and title from the card
+        const imgElement = card.querySelector('.project-image img');
+        const titleElement = card.querySelector('.project-title');
+        
+        if (imgElement && titleElement) {
+            // Set modal content
+            modalImage.src = imgElement.src;
+            modalImage.alt = imgElement.alt;
+            modalTitle.textContent = titleElement.textContent;
+            
+            // Show modal
+            imageModal.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevent scrolling
+        }
+    });
+    
+    // Make cursor indicate clickability
+    card.style.cursor = 'pointer';
 });
+
+// Close modal functionality
+function closeModal() {
+    imageModal.classList.remove('active');
+    document.body.style.overflow = 'auto'; // Re-enable scrolling
+}
+
+// Close button
+modalClose.addEventListener('click', closeModal);
+
+// Close when clicking outside the image
+imageModal.addEventListener('click', (e) => {
+    if (e.target === imageModal) {
+        closeModal();
+    }
+});
+
+// Close on Escape key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && imageModal.classList.contains('active')) {
+        closeModal();
+    }
+});
+
+// Enhanced Cursor Effects
+const cursorDot = document.createElement('div');
+cursorDot.className = 'cursor-dot';
+cursorDot.style.cssText = `
+    position: fixed;
+    width: 12px;
+    height: 12px;
+    background: radial-gradient(circle, rgba(0, 212, 255, 0.8), rgba(0, 212, 255, 0.3));
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    box-shadow: 0 0 15px rgba(0, 212, 255, 0.6);
+    display: none;
+`;
+document.body.appendChild(cursorDot);
+
+const cursorOutline = document.createElement('div');
+cursorOutline.className = 'cursor-outline';
+cursorOutline.style.cssText = `
+    position: fixed;
+    width: 40px;
+    height: 40px;
+    border: 2px solid rgba(0, 212, 255, 0.5);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    display: none;
+`;
+document.body.appendChild(cursorOutline);
+
+let mouseX = 0;
+let mouseY = 0;
+let outlineX = 0;
+let outlineY = 0;
+
+document.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    
+    cursorDot.style.left = mouseX - 6 + 'px';
+    cursorDot.style.top = mouseY - 6 + 'px';
+    
+    outlineX = mouseX - 20;
+    outlineY = mouseY - 20;
+    cursorOutline.style.left = outlineX + 'px';
+    cursorOutline.style.top = outlineY + 'px';
+});
+
+document.addEventListener('mouseenter', () => {
+    cursorDot.style.display = 'block';
+    cursorOutline.style.display = 'block';
+});
+
+document.addEventListener('mouseleave', () => {
+    cursorDot.style.display = 'none';
+    cursorOutline.style.display = 'none';
+});
+
+// Add interactive hover effects to buttons and links
+const interactiveElements = document.querySelectorAll('.btn, .nav-link, .social-link');
+interactiveElements.forEach(element => {
+    element.addEventListener('mouseenter', () => {
+        cursorDot.style.width = '20px';
+        cursorDot.style.height = '20px';
+        cursorDot.style.backgroundColor = 'rgba(0, 212, 255, 1)';
+        cursorOutline.style.borderColor = 'rgba(0, 212, 255, 0.8)';
+        cursorOutline.style.width = '50px';
+        cursorOutline.style.height = '50px';
+        cursorOutline.style.left = mouseX - 25 + 'px';
+        cursorOutline.style.top = mouseY - 25 + 'px';
+    });
+    
+    element.addEventListener('mouseleave', () => {
+        cursorDot.style.width = '12px';
+        cursorDot.style.height = '12px';
+        cursorDot.style.backgroundColor = 'rgba(0, 212, 255, 0.8)';
+        cursorOutline.style.borderColor = 'rgba(0, 212, 255, 0.5)';
+        cursorOutline.style.width = '40px';
+        cursorOutline.style.height = '40px';
+        cursorOutline.style.left = outlineX + 'px';
+        cursorOutline.style.top = outlineY + 'px';
+    });
+});
+
+// Scroll Progress Indicator
+const scrollProgress = document.createElement('div');
+scrollProgress.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #00d4ff, #ff006e, #ffd60a);
+    width: 0%;
+    z-index: 10001;
+    transition: width 0.1s ease;
+`;
+document.body.appendChild(scrollProgress);
+
+window.addEventListener('scroll', () => {
+    const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const scrolled = (window.scrollY / scrollHeight) * 100;
+    scrollProgress.style.width = scrolled + '%';
+});
+
+// Parallax Effect for Sections
+window.addEventListener('scroll', () => {
+    const scrolled = window.pageYOffset;
+    
+    // Parallax for hero section
+    const hero = document.querySelector('.hero');
+    if (hero && scrolled < window.innerHeight) {
+        hero.style.backgroundPosition = `0 ${scrolled * 0.5}px`;
+    }
+    
+    // Parallax for about section images
+    const profileImg = document.querySelector('.profile-image');
+    if (profileImg && scrolled > window.innerHeight && scrolled < window.innerHeight * 2) {
+        const offset = (scrolled - window.innerHeight) * 0.3;
+        profileImg.style.transform = `translateY(${offset}px) scale(1.05)`;
+    }
+});
+
+// Number Counter Animation
+function animateCounters() {
+    const stats = document.querySelectorAll('.stat-number');
+    stats.forEach(stat => {
+        const target = parseInt(stat.textContent);
+        let current = 0;
+        const increment = target / 30;
+        
+        const updateCount = () => {
+            if (current < target) {
+                current += increment;
+                stat.textContent = Math.floor(current) + (isNaN(parseInt(target)) ? '' : '');
+                setTimeout(updateCount, 50);
+            }
+        };
+        
+        // Start animation when visible
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    updateCount();
+                    observer.unobserve(entry.target);
+                }
+            });
+        });
+        observer.observe(stat);
+    });
+}
+
+animateCounters();
+
+// Ripple Effect on Button Click
+const buttons = document.querySelectorAll('.btn');
+buttons.forEach(button => {
+    button.addEventListener('click', function(e) {
+        const ripple = document.createElement('span');
+        const rect = this.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        const x = e.clientX - rect.left - size / 2;
+        const y = e.clientY - rect.top - size / 2;
+        
+        ripple.style.cssText = `
+            position: absolute;
+            width: ${size}px;
+            height: ${size}px;
+            background: radial-gradient(circle, rgba(255,255,255,0.8), transparent);
+            border-radius: 50%;
+            left: ${x}px;
+            top: ${y}px;
+            pointer-events: none;
+            animation: rippleEffect 0.6s ease-out;
+        `;
+        
+        if (!button.style.position || button.style.position === 'static') {
+            button.style.position = 'relative';
+        }
+        
+        button.appendChild(ripple);
+        
+        setTimeout(() => ripple.remove(), 600);
+    });
+});
+
+// Add ripple animation
+const rippleStyles = document.createElement('style');
+rippleStyles.textContent = `
+    @keyframes rippleEffect {
+        from {
+            transform: scale(1);
+            opacity: 1;
+        }
+        to {
+            transform: scale(2);
+            opacity: 0;
+        }
+    }
+`;
+document.head.appendChild(rippleStyles);
 
 // Stats Counter Animation
 function animateStats() {
