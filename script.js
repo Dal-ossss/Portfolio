@@ -96,6 +96,15 @@ const observer = new IntersectionObserver((entries) => {
             entry.target.classList.add('visible');
             entry.target.classList.remove('hidden');
             
+            // Animate text elements in the section
+            const textElements = entry.target.querySelectorAll('h2, h3, .project-title, .about-text p, .skill-name, .contact-info p');
+            textElements.forEach((el, index) => {
+                el.classList.add('animate-text', `delay-${(index % 5) + 1}`);
+                setTimeout(() => {
+                    el.classList.add('animate-in');
+                }, 50);
+            });
+            
             // Animate skill bars when skills section is visible
             if (entry.target.id === 'skills') {
                 animateSkillBars();
@@ -113,6 +122,17 @@ sections.forEach(section => {
 // Make hero section visible immediately
 document.querySelector('.hero').classList.remove('hidden');
 document.querySelector('.hero').classList.add('visible');
+
+// Animate hero text on page load
+window.addEventListener('load', () => {
+    const heroText = document.querySelectorAll('.hero-title, .hero-subtitle, .hero-description');
+    heroText.forEach((el, index) => {
+        el.classList.add('animate-text', `delay-${index + 1}`);
+        setTimeout(() => {
+            el.classList.add('animate-in');
+        }, 50);
+    });
+});
 
 // Animate Skill Bars
 function animateSkillBars() {
