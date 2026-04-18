@@ -238,17 +238,9 @@ function sendEmail(name, email, subject, message) {
     
     // EmailJS Configuration
     // IMPORTANT: Replace these with your own EmailJS credentials
-    // For testing, you can use a temporary service - see setup guide
     const serviceID = 'YOUR_SERVICE_ID'; // Replace with your EmailJS Service ID
     const templateID = 'YOUR_TEMPLATE_ID'; // Replace with your EmailJS Template ID  
     const publicKey = 'YOUR_PUBLIC_KEY'; // Replace with your EmailJS Public Key
-    
-    // Quick Test Setup (Remove after configuring your own EmailJS)
-    // If you want to test immediately, you can use this temporary setup:
-    // 1. Go to https://www.emailjs.com/
-    // 2. Sign up for free account
-    // 3. Create a service and template
-    // 4. Replace the values above with your actual credentials
     
     // Check if EmailJS is initialized
     if (typeof emailjs === 'undefined') {
@@ -340,22 +332,6 @@ notificationStyles.textContent = `
 `;
 document.head.appendChild(notificationStyles);
 
-// Typing Effect for Hero Section (Optional Enhancement)
-function typeWriter(element, text, speed = 100) {
-    let i = 0;
-    element.textContent = '';
-    
-    function type() {
-        if (i < text.length) {
-            element.textContent += text.charAt(i);
-            i++;
-            setTimeout(type, speed);
-        }
-    }
-    
-    type();
-}
-
 // Particle Background Effect for Hero Section
 function createParticles() {
     const hero = document.querySelector('.hero');
@@ -407,11 +383,37 @@ function createParticles() {
 // Initialize particles
 createParticles();
 
-// Project Card Hover Effect and Lightbox Modal
+// Project Filter Functionality
+const filterButtons = document.querySelectorAll('.filter-btn');
 const projectCards = document.querySelectorAll('.project-card');
+
+filterButtons.forEach(button => {
+    button.addEventListener('click', () => {
+        // Remove active class from all buttons
+        filterButtons.forEach(btn => btn.classList.remove('active'));
+        // Add active class to clicked button
+        button.classList.add('active');
+        
+        const filterValue = button.getAttribute('data-filter');
+        
+        projectCards.forEach(card => {
+            const category = card.getAttribute('data-category');
+            
+            if (filterValue === 'all' || category === filterValue) {
+                card.classList.remove('hide');
+                card.style.animation = 'fadeInUp 0.5s ease-out forwards';
+            } else {
+                card.classList.add('hide');
+            }
+        });
+    });
+});
+
+// Project Card Lightbox Modal
 const imageModal = document.getElementById('imageModal');
 const modalImage = document.getElementById('modalImage');
 const modalTitle = document.getElementById('modalTitle');
+const modalCategory = document.getElementById('modalCategory');
 const modalClose = document.querySelector('.modal-close');
 
 projectCards.forEach(card => {
@@ -428,12 +430,14 @@ projectCards.forEach(card => {
         // Get the image and title from the card
         const imgElement = card.querySelector('.project-image img');
         const titleElement = card.querySelector('.project-title');
+        const categoryElement = card.querySelector('.project-category');
         
         if (imgElement && titleElement) {
             // Set modal content
             modalImage.src = imgElement.src;
             modalImage.alt = imgElement.alt;
             modalTitle.textContent = titleElement.textContent;
+            modalCategory.textContent = categoryElement ? categoryElement.textContent : '';
             
             // Show modal
             imageModal.classList.add('active');
@@ -468,54 +472,85 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// Parallax Effect for Sections
-window.addEventListener('scroll', () => {
-    const scrolled = window.pageYOffset;
-    
-    // Parallax for hero section
-    const hero = document.querySelector('.hero');
-    if (hero && scrolled < window.innerHeight) {
-        hero.style.backgroundPosition = `0 ${scrolled * 0.5}px`;
-    }
-    
-    // Parallax for about section images
-    const profileImg = document.querySelector('.profile-image');
-    if (profileImg && scrolled > window.innerHeight && scrolled < window.innerHeight * 2) {
-        const offset = (scrolled - window.innerHeight) * 0.3;
-        profileImg.style.transform = `translateY(${offset}px) scale(1.05)`;
-    }
-});
-
-// Number Counter Animation
-function animateCounters() {
+// Stats Counter Animation
+function animateStats() {
     const stats = document.querySelectorAll('.stat-number');
+    
     stats.forEach(stat => {
-        const target = parseInt(stat.textContent);
+        const text = stat.textContent;
+        const hasPlus = text.includes('+');
+        const hasPercent = text.includes('%');
+        const target = parseInt(text);
+        const suffix = hasPlus ? '+' : hasPercent ? '%' : '';
+        
         let current = 0;
-        const increment = target / 30;
-        
-        const updateCount = () => {
-            if (current < target) {
-                current += increment;
-                stat.textContent = Math.floor(current) + (isNaN(parseInt(target)) ? '' : '');
-                setTimeout(updateCount, 50);
+        const increment = target / 50;
+        const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+                stat.textContent = target + suffix;
+                clearInterval(timer);
+            } else {
+                stat.textContent = Math.floor(current) + suffix;
             }
-        };
-        
-        // Start animation when visible
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    updateCount();
-                    observer.unobserve(entry.target);
-                }
-            });
-        });
-        observer.observe(stat);
+        }, 30);
     });
 }
 
-animateCounters();
+// Observe stats section for animation
+const statsSection = document.querySelector('.about-stats');
+if (statsSection) {
+    const statsObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                animateStats();
+                statsObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.5 });
+    
+    statsObserver.observe(statsSection);
+}
+
+// Add copy to clipboard functionality for email
+const contactItems = document.querySelectorAll('.contact-item');
+contactItems.forEach(item => {
+    const link = item.querySelector('.contact-link');
+    if (link && link.href.startsWith('mailto:')) {
+        item.style.cursor = 'pointer';
+        item.addEventListener('click', () => {
+            const email = link.textContent;
+            navigator.clipboard.writeText(email).then(() => {
+                showNotification('Email copied to clipboard!', 'success');
+            }).catch(() => {
+                showNotification('Failed to copy email', 'error');
+            });
+        });
+    }
+});
+
+// Keyboard Navigation Support
+document.addEventListener('keydown', (e) => {
+    // Close mobile menu on Escape
+    if (e.key === 'Escape') {
+        hamburger.classList.remove('active');
+        navMenu.classList.remove('active');
+        if (imageModal.classList.contains('active')) {
+            closeModal();
+        }
+    }
+});
+
+// Prevent zoom on double tap for mobile
+document.addEventListener('touchstart', (e) => {
+    if (e.touches.length > 1) {
+        e.preventDefault();
+    }
+}, { passive: false });
+
+// Console greeting
+console.log('%c Welcome to my Portfolio! 🚀', 'color: #00ff88; font-size: 24px; font-weight: bold;');
+console.log('%c Built with HTML, CSS, and JavaScript', 'color: #a0d0a0; font-size: 14px;');
 
 // Ripple Effect on Button Click
 const buttons = document.querySelectorAll('.btn');
@@ -565,79 +600,18 @@ rippleStyles.textContent = `
 `;
 document.head.appendChild(rippleStyles);
 
-// Stats Counter Animation
-function animateStats() {
-    const stats = document.querySelectorAll('.stat-number');
+// Typing Effect for Hero Section (Optional Enhancement)
+function typeWriter(element, text, speed = 100) {
+    let i = 0;
+    element.textContent = '';
     
-    stats.forEach(stat => {
-        const target = parseInt(stat.textContent);
-        const suffix = stat.textContent.includes('+') ? '+' : '';
-        let current = 0;
-        const increment = target / 50;
-        const timer = setInterval(() => {
-            current += increment;
-            if (current >= target) {
-                stat.textContent = target + suffix;
-                clearInterval(timer);
-            } else {
-                stat.textContent = Math.floor(current) + suffix;
-            }
-        }, 30);
-    });
-}
-
-// Observe stats section for animation
-const statsSection = document.querySelector('.about-stats');
-if (statsSection) {
-    const statsObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                animateStats();
-                statsObserver.unobserve(entry.target);
-            }
-        });
-    }, { threshold: 0.5 });
+    function type() {
+        if (i < text.length) {
+            element.textContent += text.charAt(i);
+            i++;
+            setTimeout(type, speed);
+        }
+    }
     
-    statsObserver.observe(statsSection);
+    type();
 }
-
-// Add copy to clipboard functionality for email
-const contactEmail = document.querySelector('.contact-item');
-if (contactEmail) {
-    contactEmail.style.cursor = 'pointer';
-    contactEmail.addEventListener('click', () => {
-        const email = contactEmail.querySelector('span:last-child').textContent;
-        navigator.clipboard.writeText(email).then(() => {
-            showNotification('Email copied to clipboard!', 'success');
-        }).catch(() => {
-            showNotification('Failed to copy email', 'error');
-        });
-    });
-}
-
-// Keyboard Navigation Support
-document.addEventListener('keydown', (e) => {
-    // Close mobile menu on Escape
-    if (e.key === 'Escape') {
-        hamburger.classList.remove('active');
-        navMenu.classList.remove('active');
-    }
-});
-
-// Prevent zoom on double tap for mobile
-document.addEventListener('touchstart', (e) => {
-    if (e.touches.length > 1) {
-        e.preventDefault();
-    }
-}, { passive: false });
-
-// Console greeting
-console.log('%c Welcome to my Portfolio! 🚀', 'color: #2563eb; font-size: 24px; font-weight: bold;');
-console.log('%c Built with HTML, CSS, and JavaScript', 'color: #64748b; font-size: 14px;');
-
-// Add loading state for images (placeholder functionality)
-document.querySelectorAll('.project-placeholder, .image-placeholder').forEach(placeholder => {
-    placeholder.addEventListener('click', () => {
-        showNotification('Add your images by replacing the placeholder divs!', 'info');
-    });
-});
