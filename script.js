@@ -188,7 +188,7 @@ activeStyle.textContent = `
 `;
 document.head.appendChild(activeStyle);
 
-// Contact Form Handling with EmailJS
+// Contact Form Handling with Formspree
 const contactForm = document.getElementById('contactForm');
 if (contactForm) {
     contactForm.addEventListener('submit', (e) => {
@@ -212,12 +212,12 @@ if (contactForm) {
             return;
         }
         
-        // Send email using EmailJS
+        // Send email using Formspree
         sendEmail(name, email, subject, message);
     });
 }
 
-// EmailJS Configuration and Email Sending Function
+// Formspree Configuration and Email Sending Function
 function sendEmail(name, email, subject, message) {
     const submitBtn = contactForm.querySelector('.btn-submit');
     const originalText = submitBtn.textContent;
@@ -226,48 +226,40 @@ function sendEmail(name, email, subject, message) {
     submitBtn.textContent = 'Sending...';
     submitBtn.disabled = true;
     
-    // EmailJS Template Parameters
-    const templateParams = {
-        from_name: name,
-        from_email: email,
-        to_name: 'David Seth Yaba',
-        subject: subject,
-        message: message,
-        reply_to: email
-    };
+    // Formspree API endpoint (replace with your own Formspree form URL)
+    const formspreeEndpoint = 'https://formspree.io/f/your-form-id'; // Replace with your Formspree form ID
     
-    // EmailJS Configuration
-    // IMPORTANT: Replace these with your own EmailJS credentials
-    const serviceID = 'YOUR_SERVICE_ID'; // Replace with your EmailJS Service ID
-    const templateID = 'YOUR_TEMPLATE_ID'; // Replace with your EmailJS Template ID  
-    const publicKey = 'YOUR_PUBLIC_KEY'; // Replace with your EmailJS Public Key
+    // Form data for Formspree
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('email', email);
+    formData.append('subject', subject);
+    formData.append('message', message);
     
-    // Check if EmailJS is initialized
-    if (typeof emailjs === 'undefined') {
-        showNotification('Email service not available. Please try again later.', 'error');
-        submitBtn.textContent = originalText;
-        submitBtn.disabled = false;
-        return;
-    }
-    
-    // Initialize EmailJS with your public key
-    emailjs.init(publicKey);
-    
-    // Send the email
-    emailjs.send(serviceID, templateID, templateParams)
-        .then((response) => {
-            console.log('SUCCESS!', response.status, response.text);
+    // Send the email using fetch
+    fetch(formspreeEndpoint, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => {
+        if (response.ok) {
             showNotification('Message sent successfully! I will get back to you soon.', 'success');
             contactForm.reset();
             submitBtn.textContent = originalText;
             submitBtn.disabled = false;
-        })
-        .catch((error) => {
-            console.log('FAILED...', error);
-            showNotification('Failed to send message. Please try again or contact me directly.', 'error');
-            submitBtn.textContent = originalText;
-            submitBtn.disabled = false;
-        });
+        } else {
+            throw new Error('Formspree response not ok');
+        }
+    })
+    .catch(error => {
+        console.log('FAILED...', error);
+        showNotification('Failed to send message. Please try again or contact me directly.', 'error');
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+    });
 }
 
 // Email Validation
